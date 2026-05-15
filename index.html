@@ -1,491 +1,825 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>InnerMap - 자기이해 테스트</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UP-GLE 업무 스타일 진단</title>
   <style>
-    :root{
-      --bg:#f7f8fc;
-      --card:#ffffff;
-      --text:#172033;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --primary:#7c3aed;
-      --primary2:#a78bfa;
-      --soft:#f1edff;
-      --good:#ecfdf5;
-      --warn:#fff7ed;
-      --shadow:0 20px 60px rgba(17,24,39,.08);
-      --radius:28px;
+    :root {
+      --red: #e53935;
+      --deep-red: #b71c1c;
+      --soft-red: #ffebee;
+      --soft-red-2: #fff7f7;
+      --black: #18181b;
+      --gray-900: #27272a;
+      --gray-700: #3f3f46;
+      --gray-600: #52525b;
+      --gray-500: #71717a;
+      --gray-400: #a1a1aa;
+      --gray-300: #d4d4d8;
+      --gray-200: #e4e4e7;
+      --gray-100: #f4f4f5;
+      --white: #ffffff;
+      --shadow: 0 16px 40px rgba(181, 28, 28, 0.08);
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-      background:
-        radial-gradient(circle at top left, #efe9ff 0, transparent 32%),
-        radial-gradient(circle at top right, #e0f2fe 0, transparent 26%),
-        var(--bg);
-      color:var(--text);
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--white);
+      color: var(--black);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      word-break: keep-all;
     }
-    .wrap{max-width:1080px;margin:0 auto;min-height:100vh;padding:28px 20px 48px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:46px;height:46px;border-radius:18px;background:linear-gradient(135deg,var(--primary),#60a5fa);display:grid;place-items:center;color:white;font-weight:900;box-shadow:var(--shadow)}
-    h1,h2,h3,p{margin:0}
-    .brand h1{font-size:22px}
-    .brand p{font-size:13px;color:var(--muted);margin-top:2px}
-    button{font:inherit;cursor:pointer}
-    .btn{border:0;border-radius:18px;background:var(--primary);color:white;padding:14px 20px;font-weight:800;box-shadow:0 12px 24px rgba(124,58,237,.22);transition:.18s}
-    .btn:hover{transform:translateY(-1px);background:#6d28d9}
-    .btn.secondary{background:white;color:#374151;border:1px solid var(--line);box-shadow:none}
-    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:stretch}
-    .card{background:rgba(255,255,255,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.8);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .hero-main{padding:44px}
-    .badge{display:inline-flex;align-items:center;gap:6px;background:var(--soft);color:#5b21b6;border-radius:999px;padding:8px 13px;font-size:13px;font-weight:800;margin-bottom:22px}
-    .hero h2{font-size:48px;line-height:1.08;letter-spacing:-1.6px;margin-bottom:18px}
-    .hero p{font-size:18px;line-height:1.8;color:#4b5563;margin-bottom:30px}
-    .feature-list{display:grid;gap:14px}
-    .feature{padding:22px;display:flex;gap:14px;align-items:center}
-    .icon{width:42px;height:42px;border-radius:16px;background:var(--soft);display:grid;place-items:center;color:var(--primary);font-weight:900}
-    .feature h3{font-size:17px;margin-bottom:4px}
-    .feature p{font-size:14px;color:var(--muted);line-height:1.45}
-    .screen{display:none}
-    .screen.active{display:block;animation:fade .22s ease}
-    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-    .test-box{max-width:760px;margin:0 auto}
-    .progress-row{display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin-bottom:10px;font-weight:700}
-    .progress{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-bottom:20px}
-    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#60a5fa);border-radius:999px;transition:.22s}
-    .question-card{padding:38px}
-    .question-card h2{font-size:30px;line-height:1.45;margin:16px 0 28px;letter-spacing:-.7px}
-    .options{display:grid;gap:12px}
-    .option{width:100%;border:1px solid var(--line);background:white;border-radius:20px;padding:18px 20px;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:.15s}
-    .option:hover{border-color:var(--primary2);background:#faf8ff;transform:translateY(-1px)}
-    .score{background:#f3f4f6;color:#4b5563;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:800}
-    .result-head{text-align:center;margin-bottom:24px}
-    .result-head h2{font-size:42px;letter-spacing:-1px;margin:8px 0}
-    .result-head p{color:#4b5563;font-size:18px}
-    .score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:22px 0}
-    .score-card{padding:20px}
-    .score-card .label{color:var(--muted);font-size:13px;font-weight:800}
-    .score-card .num{font-size:34px;font-weight:900;margin-top:6px}
-    .result-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px;margin-top:18px}
-    .panel{padding:24px}
-    .panel h3{font-size:21px;margin-bottom:14px}
-    .summary{line-height:1.85;color:#374151;margin-bottom:18px}
-    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .info{background:#f9fafb;border:1px solid var(--line);border-radius:22px;padding:18px}
-    .info h4{color:#5b21b6;margin:0 0 10px;font-size:15px}
-    .info ul{margin:0;padding-left:18px;color:#4b5563;line-height:1.7;font-size:14px}
-    .radar-wrap{height:370px;display:grid;place-items:center}
-    canvas{max-width:100%;height:auto}
-    .notice{margin-top:20px;color:var(--muted);font-size:13px;line-height:1.6;text-align:center}
-    .actions{display:flex;justify-content:center;gap:10px;margin-top:22px}
-    @media(max-width:860px){
-      .hero,.result-grid{grid-template-columns:1fr}
-      .score-grid{grid-template-columns:repeat(2,1fr)}
-      .hero h2{font-size:36px}
-      .hero-main,.question-card{padding:28px}
-      .info-grid{grid-template-columns:1fr}
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding: 32px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .screen {
+      width: 100%;
+      max-width: 440px;
+      min-height: calc(100vh - 64px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .result-screen {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--deep-red);
+    }
+
+    .pill {
+      padding: 9px 15px;
+      border-radius: 999px;
+      background: var(--soft-red);
+      color: var(--deep-red);
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .hero {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .hero-icon-wrap {
+      width: 176px;
+      height: 176px;
+      border-radius: 999px;
+      background: var(--soft-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: popIn 0.55s ease both;
+    }
+
+    .hero-icon {
+      width: 112px;
+      height: 112px;
+      border-radius: 999px;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-icon svg { width: 54px; height: 54px; stroke: var(--red); }
+
+    h1, h2, h3, p { margin: 0; }
+
+    .hero-title {
+      font-size: 40px;
+      line-height: 1.16;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+    }
+
+    .hero-desc {
+      margin-top: 18px;
+      color: var(--gray-600);
+      font-size: 16px;
+      line-height: 1.75;
+      font-weight: 500;
+    }
+
+    .primary-btn {
+      width: 100%;
+      min-height: 58px;
+      border-radius: 20px;
+      background: var(--red);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 850;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 14px 32px rgba(229, 57, 53, 0.22);
+      transition: transform 0.16s ease, background 0.16s ease;
+    }
+
+    .primary-btn:hover { background: var(--deep-red); }
+    .primary-btn:active { transform: translateY(1px) scale(0.99); }
+
+    .secondary-btn {
+      width: 100%;
+      min-height: 54px;
+      border-radius: 18px;
+      border: 1px solid var(--red);
+      background: var(--white);
+      color: var(--red);
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .ghost-btn {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--gray-500);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .progress-wrap { display: flex; flex-direction: column; gap: 14px; }
+
+    .question-count {
+      color: var(--gray-500);
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .progress-bg {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--soft-red);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--red);
+      transition: width 0.28s ease;
+    }
+
+    .question-area {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      animation: fadeUp 0.24s ease both;
+    }
+
+    .question-title {
+      font-size: 30px;
+      line-height: 1.34;
+      letter-spacing: -0.045em;
+      font-weight: 950;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .score-btn {
+      height: 66px;
+      border-radius: 20px;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-400);
+      font-size: 21px;
+      font-weight: 950;
+      transition: all 0.16s ease;
+    }
+
+    .score-btn:hover { background: var(--soft-red-2); }
+    .score-btn.selected {
+      border-color: var(--red);
+      background: var(--red);
+      color: var(--white);
+      box-shadow: 0 16px 30px rgba(229, 57, 53, 0.18);
+      transform: scale(1.02);
+    }
+    .score-btn:disabled { cursor: not-allowed; }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray-400);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .hint-box {
+      border-radius: 20px;
+      background: var(--soft-red-2);
+      color: var(--gray-500);
+      padding: 16px 18px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 750;
+      line-height: 1.55;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: 0 10px 28px rgba(24, 24, 27, 0.04);
+    }
+
+    .main-result-card {
+      border: 0;
+      border-radius: 32px;
+      background: var(--soft-red-2);
+      text-align: center;
+      padding: 30px 24px;
+    }
+
+    .level-label {
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .result-title {
+      margin-top: 8px;
+      font-size: 38px;
+      line-height: 1.15;
+      letter-spacing: -0.06em;
+      font-weight: 950;
+    }
+
+    .result-tone {
+      margin-top: 10px;
+      color: var(--gray-500);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .result-desc {
+      margin-top: 22px;
+      color: var(--gray-700);
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 550;
+    }
+
+    .gauge-wrap {
+      position: relative;
+      width: 176px;
+      height: 176px;
+      margin: 26px auto 0;
+    }
+
+    .gauge-wrap svg { transform: rotate(-90deg); }
+
+    .gauge-track { stroke: #fdecec; }
+    .gauge-value {
+      stroke: var(--red);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.9s ease;
+    }
+
+    .gauge-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gauge-score {
+      color: var(--deep-red);
+      font-size: 50px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+    }
+
+    .gauge-label {
+      margin-top: 6px;
+      color: var(--gray-500);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.28em;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+    }
+
+    .bar-list { display: flex; flex-direction: column; gap: 18px; }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .bar-score { color: var(--red); font-weight: 950; }
+
+    .bar-bg {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--soft-red);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--red);
+      transition: width 0.85s ease;
+    }
+
+    .dark-card {
+      background: var(--black);
+      color: var(--white);
+      border: 0;
+    }
+
+    .dark-label {
+      color: #fecaca;
+      font-size: 14px;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+
+    .dark-title {
+      font-size: 25px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .dark-desc {
+      color: var(--gray-300);
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 500;
+    }
+
+    .mission-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .mission-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 18px;
+      background: var(--soft-red-2);
+      padding: 15px 16px;
+      color: var(--gray-900);
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .mission-item svg {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      stroke: var(--red);
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-bottom: 12px;
+    }
+
+    .hidden { display: none !important; }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 380px) {
+      .hero-title { font-size: 34px; }
+      .question-title { font-size: 26px; }
+      .score-btn { height: 58px; border-radius: 17px; }
+      .result-title { font-size: 32px; }
+      .button-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">IM</div>
-        <div>
-          <h1>InnerMap</h1>
-          <p>업무·관계·스트레스 자기이해 테스트</p>
-        </div>
-      </div>
-      <button id="homeBtn" class="btn secondary" style="display:none">처음으로</button>
-    </header>
+  <div id="app" class="app"></div>
 
-    <section id="home" class="screen active">
-      <div class="hero">
-        <div class="card hero-main">
-          <div class="badge">30문항 · 약 4분</div>
-          <h2>나는 어떤 환경에서 가장 잘 작동할까?</h2>
-          <p>버크만 검사에서 영감을 받은 간이 자기이해 앱입니다. 실제 버크만 문항이 아닌 독자적인 문항으로 업무 스타일, 관계 성향, 스트레스 반응을 분석합니다.</p>
-          <button id="startBtn" class="btn">검사 시작하기</button>
-        </div>
-        <div class="feature-list">
-          <div class="card feature"><div class="icon">W</div><div><h3>업무 스타일</h3><p>계획성, 완성도, 개선성, 자율성</p></div></div>
-          <div class="card feature"><div class="icon">R</div><div><h3>관계 성향</h3><p>사교성, 공감력, 직접 소통, 인정욕구</p></div></div>
-          <div class="card feature"><div class="icon">S</div><div><h3>스트레스 반응</h3><p>민감 포인트, 거리두기, 안정욕구</p></div></div>
-          <div class="card feature"><div class="icon">M</div><div><h3>동기 요인</h3><p>의미, 성장, 실행 에너지</p></div></div>
-        </div>
-      </div>
-      <p class="notice">※ 이 테스트는 자기이해용 간이 도구이며, 공식 심리검사나 진단을 대체하지 않습니다.</p>
-    </section>
+  <script>
+    "use strict";
 
-    <section id="test" class="screen">
-      <div class="test-box">
-        <div class="progress-row">
-          <span id="sectionName"></span>
-          <span id="countText"></span>
-        </div>
-        <div class="progress"><div id="bar" class="bar"></div></div>
-        <div class="card question-card">
-          <div id="qBadge" class="badge"></div>
-          <h2 id="questionText"></h2>
-          <div id="options" class="options"></div>
-        </div>
-      </div>
-    </section>
+    const questions = [
+      { id: 1, key: "control", text: "업무를 줄이면 예상치 못한 문제가 생길 것 같다." },
+      { id: 2, key: "control", text: "내가 직접 확인하지 않으면 불안하다." },
+      { id: 3, key: "control", text: "보고나 공유를 줄이면 사고가 날 것 같다." },
+      { id: 4, key: "control", text: "프로세스를 단순화하면 품질이 떨어질 것 같다." },
+      { id: 5, key: "control", text: "업무 자동화보다 직접 처리하는 것이 더 안심된다." },
+      { id: 6, key: "value", text: "바쁘지 않으면 내가 중요한 사람처럼 느껴지지 않는다." },
+      { id: 7, key: "value", text: "업무량이 줄면 조직 내 존재감도 줄어드는 느낌이다." },
+      { id: 8, key: "value", text: "많은 일을 처리하는 것이 내 경쟁력이라고 생각한다." },
+      { id: 9, key: "value", text: "업무를 줄이는 사람은 책임감이 부족해 보인다." },
+      { id: 10, key: "value", text: "쉴 때보다 바쁠 때 더 안정감을 느낀다." },
+      { id: 11, key: "risk", text: "업무를 없앴다가 문제가 생기면 내 책임이 될 것 같다." },
+      { id: 12, key: "risk", text: "비효율적이어도 기존 방식을 유지하는 편이 안전하다." },
+      { id: 13, key: "risk", text: "새로운 방식 도입은 실패 리스크가 크다고 느낀다." },
+      { id: 14, key: "risk", text: "업무를 줄이는 결정은 부담스럽다." },
+      { id: 15, key: "risk", text: "그냥 하던 대로 하는 것이 심리적으로 편하다." },
+      { id: 16, key: "inertia", text: "현재 방식이 비효율적이어도 쉽게 바꾸지 않는다." },
+      { id: 17, key: "inertia", text: "익숙한 업무 방식에서 벗어나는 것이 스트레스다." },
+      { id: 18, key: "inertia", text: "새로운 시스템 적응보다 기존 방식을 선호한다." },
+      { id: 19, key: "inertia", text: "업무 개선보다 업무 유지가 더 편하다." },
+      { id: 20, key: "inertia", text: "불필요하다고 느끼는 업무도 계속 반복하는 편이다." }
+    ];
 
-    <section id="result" class="screen">
-      <div class="result-head">
-        <div class="badge">분석 완료</div>
-        <h2 id="resultType"></h2>
-        <p id="resultSubtitle"></p>
-      </div>
-      <div id="scoreGrid" class="score-grid"></div>
-      <div class="result-grid">
-        <div class="card panel">
-          <h3>성향 레이더</h3>
-          <div class="radar-wrap"><canvas id="radar" width="420" height="420"></canvas></div>
-        </div>
-        <div class="card panel">
-          <h3>핵심 해석</h3>
-          <p id="summary" class="summary"></p>
-          <div id="infoGrid" class="info-grid"></div>
-        </div>
-      </div>
-      <div class="actions"><button id="restartBtn" class="btn">다시 검사하기</button></div>
-    </section>
-  </div>
+    const areaLabels = {
+      control: "통제 불안",
+      value: "존재 가치 의존",
+      risk: "책임 회피 불안",
+      inertia: "관성 유지 성향"
+    };
 
-<script>
-const questions = [
-  { id: 1, section: "업무 스타일", text: "나는 일을 시작하기 전에 큰 그림이 먼저 보여야 한다.", category: "planning" },
-  { id: 2, section: "업무 스타일", text: "즉흥적으로 움직이는 것보다 계획된 흐름이 편하다.", category: "planning" },
-  { id: 3, section: "업무 스타일", text: "일을 시작하기 전 우선순위와 기준을 정리하는 편이다.", category: "planning" },
-  { id: 4, section: "업무 스타일", text: "디테일 오류를 발견하면 그냥 지나치기 어렵다.", category: "precision" },
-  { id: 5, section: "업무 스타일", text: "결과물의 완성도가 낮으면 마음이 오래 쓰인다.", category: "precision" },
-  { id: 6, section: "업무 스타일", text: "반복 업무보다 새롭게 설계하거나 개선하는 일이 더 재미있다.", category: "innovation" },
-  { id: 7, section: "업무 스타일", text: "정해진 방식보다 더 나은 방법을 찾고 싶어 한다.", category: "innovation" },
-  { id: 8, section: "업무 스타일", text: "혼자 깊게 몰입하는 시간이 꼭 필요하다.", category: "independence" },
-  { id: 9, section: "관계 성향", text: "처음 보는 사람과도 비교적 빨리 친해진다.", category: "social" },
-  { id: 10, section: "관계 성향", text: "여러 사람과 함께 이야기하며 아이디어를 얻는 편이다.", category: "social" },
-  { id: 11, section: "관계 성향", text: "상대의 감정 변화를 잘 눈치채는 편이다.", category: "empathy" },
-  { id: 12, section: "관계 성향", text: "분위기가 불편해지면 내가 먼저 완화하려고 한다.", category: "empathy" },
-  { id: 13, section: "관계 성향", text: "갈등이 생기면 바로 이야기해서 푸는 편이다.", category: "directness" },
-  { id: 14, section: "관계 성향", text: "돌려 말하기보다 핵심을 분명하게 말하는 편이다.", category: "directness" },
-  { id: 15, section: "관계 성향", text: "인정받고 있다는 느낌이 중요하다.", category: "recognition" },
-  { id: 16, section: "자율성과 동기", text: "누군가 나를 통제하려 하면 스트레스를 받는다.", category: "independence" },
-  { id: 17, section: "자율성과 동기", text: "자유롭게 결정할 수 있을 때 성과가 잘 난다.", category: "independence" },
-  { id: 18, section: "자율성과 동기", text: "경쟁 상황이 생기면 오히려 동기부여 된다.", category: "drive" },
-  { id: 19, section: "자율성과 동기", text: "안정감보다 성장 가능성이 더 중요하다.", category: "drive" },
-  { id: 20, section: "자율성과 동기", text: "의미 있는 일이라고 느껴야 오래 버틸 수 있다.", category: "meaning" },
-  { id: 21, section: "자율성과 동기", text: "사람들에게 긍정적 영향을 주고 싶다.", category: "meaning" },
-  { id: 22, section: "스트레스 반응", text: "스트레스를 받으면 혼자 있고 싶어진다.", category: "stressWithdraw" },
-  { id: 23, section: "스트레스 반응", text: "일이 많아질수록 감정 표현이 줄어든다.", category: "stressWithdraw" },
-  { id: 24, section: "스트레스 반응", text: "압박이 심해지면 예민하거나 날카로워진다.", category: "stressSensitivity" },
-  { id: 25, section: "스트레스 반응", text: "기대했던 기준이 무너지면 크게 실망한다.", category: "stressSensitivity" },
-  { id: 26, section: "스트레스 반응", text: "통제할 수 없는 상황이 오래 지속되면 지친다.", category: "stability" },
-  { id: 27, section: "스트레스 반응", text: "명확한 기준과 역할이 있는 환경이 편하다.", category: "stability" },
-  { id: 28, section: "실행 방식", text: "빠르게 시도하고 수정하는 방식이 잘 맞는다.", category: "action" },
-  { id: 29, section: "실행 방식", text: "생각이 정리되면 바로 실행으로 옮기는 편이다.", category: "action" },
-  { id: 30, section: "실행 방식", text: "문제가 생기면 원인을 분석하기보다 먼저 움직이며 해결책을 찾는다.", category: "action" },
-];
+    const levelData = [
+      {
+        min: 0,
+        max: 24,
+        level: "LEVEL 1",
+        name: "업무 슬림형",
+        tone: "효율 중심",
+        desc: "불필요한 업무를 비교적 잘 정리하며 변화 수용도가 높습니다.",
+        risk: "지나친 단순화로 디테일이 누락될 수 있습니다.",
+        actions: ["자동화 리더 역할 맡기", "업무 삭제 기준 공유하기", "개선 사례 확산하기"]
+      },
+      {
+        min: 25,
+        max: 49,
+        level: "LEVEL 2",
+        name: "안정 관리형",
+        tone: "균형 중심",
+        desc: "효율과 안정 사이에서 비교적 균형을 유지합니다.",
+        risk: "상황에 따라 불필요한 업무를 다시 붙잡을 수 있습니다.",
+        actions: ["월 1회 업무 점검", "반복 업무 목록화", "줄일 수 있는 보고 찾기"]
+      },
+      {
+        min: 50,
+        max: 74,
+        level: "LEVEL 3",
+        name: "업무 고착형",
+        tone: "유지 성향 높음",
+        desc: "업무 삭제보다 유지에서 심리적 안정감을 느끼는 경향이 있습니다.",
+        risk: "보고 과잉, 확인 과잉, 업무 비대화가 발생할 수 있습니다.",
+        actions: ["안 해보기 실험", "CC 한 명 줄이기", "반복 보고 1개 제거 검토"]
+      },
+      {
+        min: 75,
+        max: 100,
+        level: "LEVEL 4",
+        name: "불안 기반 과몰입형",
+        tone: "불안 작동 강함",
+        desc: "불안과 책임감 때문에 업무를 놓지 못하는 경향이 강합니다.",
+        risk: "번아웃, 위임 실패, 조직 생산성 저하로 이어질 수 있습니다.",
+        actions: ["리더와 업무 삭제 기준 합의", "위임 연습", "실패 허용 범위 정하기"]
+      }
+    ];
 
-const scoreOptions = [
-  { label: "매우 그렇다", score: 5 },
-  { label: "그렇다", score: 4 },
-  { label: "보통", score: 3 },
-  { label: "아니다", score: 2 },
-  { label: "전혀 아니다", score: 1 },
-];
+    const state = {
+      started: false,
+      done: false,
+      step: 0,
+      answers: {},
+      isAdvancing: false
+    };
 
-let screen = "home";
-let current = 0;
-let answers = [];
+    const app = document.getElementById("app");
 
-function $(id){ return document.getElementById(id); }
-function show(name){
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  $(name).classList.add("active");
-  $("homeBtn").style.display = name === "home" ? "none" : "inline-block";
-  screen = name;
-}
-
-function renderQuestion(){
-  const q = questions[current];
-  $("sectionName").textContent = q.section;
-  $("countText").textContent = `${current + 1} / ${questions.length}`;
-  $("bar").style.width = `${Math.round((answers.length / questions.length) * 100)}%`;
-  $("qBadge").textContent = `Q${current + 1}`;
-  $("questionText").textContent = q.text;
-  $("options").innerHTML = "";
-  scoreOptions.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    btn.innerHTML = `<span>${opt.label}</span><span class="score">${opt.score}</span>`;
-    btn.onclick = () => answer(opt.score);
-    $("options").appendChild(btn);
-  });
-}
-
-function answer(score){
-  const q = questions[current];
-  answers.push({ questionId:q.id, category:q.category, score });
-  if(current < questions.length - 1){
-    current += 1;
-    renderQuestion();
-  } else {
-    renderResult();
-    show("result");
-  }
-}
-
-function avgScores(){
-  const totals = {}, counts = {};
-  answers.forEach(a => {
-    totals[a.category] = (totals[a.category] || 0) + a.score;
-    counts[a.category] = (counts[a.category] || 0) + 1;
-  });
-  const avg = {};
-  Object.keys(totals).forEach(k => avg[k] = Math.round((totals[k] / counts[k]) * 20));
-  return avg;
-}
-
-function mean(arr){ return Math.round(arr.reduce((a,b)=>a+b,0) / arr.length); }
-
-function analyze(){
-  const avg = avgScores();
-  const workScore = mean([avg.planning||0, avg.precision||0, avg.innovation||0]);
-  const peopleScore = mean([avg.social||0, avg.empathy||0, avg.directness||0]);
-  const stressScore = mean([avg.stressWithdraw||0, avg.stressSensitivity||0, avg.stability||0]);
-  const motivationScore = mean([avg.meaning||0, avg.drive||0, avg.recognition||0]);
-  const actionScore = mean([avg.action||0, avg.drive||0, avg.directness||0]);
-
-  let fallback = {
-    type:"균형형 탐색가",
-    subtitle:"상황에 따라 유연하게 일하고 관계를 조율하는 타입",
-    summary:"한 가지 방식에 고정되기보다 환경과 사람에 맞춰 조절하는 힘이 있습니다. 다만 기준이 모호하거나 피드백이 부족하면 몰입도가 떨어질 수 있습니다."
-  };
-
-  const rules = [
-    {type:"조용한 전략가형", score:(avg.independence||0)+(avg.precision||0)+(avg.planning||0)-(avg.social||0)*.25, subtitle:"자율성과 완성도가 살아날 때 강해지는 타입", summary:"깊게 몰입하고 스스로 판단할 수 있는 환경에서 성과가 잘 납니다. 지나친 간섭, 잦은 방향 변경, 역할 모호성은 피로도를 높일 수 있습니다."},
-    {type:"관계형 촉진자", score:(avg.social||0)+(avg.empathy||0)+(avg.recognition||0), subtitle:"사람의 분위기와 협업 흐름을 잘 읽는 타입", summary:"팀의 감정 온도와 관계 흐름을 잘 파악합니다. 다만 타인의 기대를 지나치게 떠안으면 에너지가 빠르게 소모될 수 있습니다."},
-    {type:"추진형 리더", score:(avg.drive||0)+(avg.action||0)+(avg.directness||0), subtitle:"명확한 목표와 빠른 실행에서 힘을 얻는 타입", summary:"목표가 분명하고 성과 기준이 보일 때 강하게 움직입니다. 속도가 느리거나 책임 소재가 불분명한 환경에서는 답답함을 느끼기 쉽습니다."},
-    {type:"안정형 설계자", score:(avg.stability||0)+(avg.planning||0)+(avg.precision||0), subtitle:"예측 가능한 구조와 명확한 기준에서 안정적으로 성과 내는 타입", summary:"계획, 기준, 역할이 명확할수록 좋은 결과를 냅니다. 갑작스러운 변경이나 애매한 지시는 스트레스 요인이 될 수 있습니다."},
-    {type:"창의적 개선가", score:(avg.innovation||0)+(avg.meaning||0)+(avg.independence||0), subtitle:"기존 방식을 더 낫게 바꾸는 데 에너지를 얻는 타입", summary:"문제를 새롭게 바라보고 개선점을 찾는 힘이 있습니다. 반복적이고 변화가 막힌 환경에서는 금방 답답함을 느낄 수 있습니다."},
-    {type:"섬세한 조율자", score:(avg.empathy||0)+(avg.stability||0)+(avg.stressSensitivity||0), subtitle:"사람과 상황의 미묘한 변화를 세심하게 읽는 타입", summary:"분위기, 감정, 리스크를 민감하게 감지합니다. 갈등이나 불확실성이 길어지면 에너지 소모가 커질 수 있습니다."},
-    {type:"독립형 실행가", score:(avg.independence||0)+(avg.action||0)+(avg.drive||0), subtitle:"권한이 주어질 때 빠르게 움직이는 타입", summary:"자율성과 목표가 주어지면 빠르게 실행하며 결과를 만듭니다. 과도한 보고, 승인, 통제 구조에서는 동력이 떨어질 수 있습니다."},
-    {type:"의미지향 서포터", score:(avg.meaning||0)+(avg.empathy||0)+(avg.recognition||0), subtitle:"사람에게 긍정적인 영향을 줄 때 오래 몰입하는 타입", summary:"일의 의미와 타인에게 주는 영향이 중요합니다. 성과만 강조되고 맥락이나 가치를 느끼기 어려운 환경에서는 쉽게 소진될 수 있습니다."}
-  ];
-
-  const top = rules.sort((a,b)=>b.score-a.score)[0];
-  const core = top.score >= 165 ? top : fallback;
-  const compatibility = makeCompatibility(core.type);
-  return {
-    avg, ...core, compatibility,
-    cards:[
-      ["업무 스타일",workScore],["관계 에너지",peopleScore],["스트레스 민감도",stressScore],["동기 강도",motivationScore],["실행 에너지",actionScore]
-    ],
-    radar:[
-      ["계획",avg.planning||0],["자율",avg.independence||0],["공감",avg.empathy||0],["성장",avg.drive||0],
-      ["실행",avg.action||0],["개선",avg.innovation||0],["안정",avg.stability||0],["완성",avg.precision||0]
-    ],
-    strengths:makeStrengths(avg),
-    cautions:makeCautions(avg, core.type),
-    environments:makeEnvironments(avg)
-  };
-}
-
-function makeStrengths(avg){
-  const items = [];
-  if((avg.precision||0)>=70) items.push("세부 기준과 완성도를 놓치지 않습니다.");
-  if((avg.independence||0)>=70) items.push("자율성이 주어질수록 판단과 실행력이 좋아집니다.");
-  if((avg.empathy||0)>=70) items.push("상대의 감정과 분위기를 빠르게 파악합니다.");
-  if((avg.drive||0)>=70) items.push("성장 가능성이 보이면 강하게 몰입합니다.");
-  if((avg.innovation||0)>=70) items.push("기존 방식을 개선하고 새롭게 설계하는 힘이 있습니다.");
-  if((avg.action||0)>=70) items.push("생각을 실행으로 옮기는 속도가 빠릅니다.");
-  if((avg.planning||0)>=70) items.push("일의 구조와 흐름을 설계하는 힘이 있습니다.");
-  return items.length ? items : ["상황에 맞게 균형을 잡는 유연성이 있습니다."];
-}
-function makeCautions(avg, type){
-  const candidates = [];
-  const add = (score, text) => candidates.push({ score, text });
-  const v = (key) => avg[key] || 0;
-
-  const topTraits = Object.entries(avg).sort((a,b)=>b[1]-a[1]);
-  const lowTraits = Object.entries(avg).sort((a,b)=>a[1]-b[1]);
-  const lowest = lowTraits[0] ? lowTraits[0][0] : "";
-
-  const typeBase = {
-    "조용한 전략가형":"완성도와 독립성이 강한 만큼, 생각이 정리되기 전에는 피드백을 미루거나 혼자 끌어안기 쉽습니다.",
-    "관계형 촉진자":"관계의 온도를 잘 읽는 만큼, 타인의 기분과 기대를 과하게 떠안지 않도록 경계가 필요합니다.",
-    "추진형 리더":"실행 속도가 빠른 만큼, 주변 사람이 따라올 시간을 충분히 주지 않으면 압박으로 느껴질 수 있습니다.",
-    "안정형 설계자":"기준과 예측 가능성을 중시하는 만큼, 변화가 생겼을 때 유연한 임시 기준을 세우는 연습이 필요합니다.",
-    "창의적 개선가":"개선 아이디어가 많은 만큼, 아직 바꿀 준비가 안 된 사람에게는 비판처럼 들릴 수 있습니다.",
-    "섬세한 조율자":"미묘한 신호를 잘 읽는 만큼, 확인되지 않은 분위기를 혼자 해석하며 지치지 않도록 주의가 필요합니다.",
-    "독립형 실행가":"스스로 움직이는 힘이 강한 만큼, 합의가 필요한 일에서 중간 공유가 부족해질 수 있습니다.",
-    "의미지향 서포터":"일의 의미와 사람을 중시하는 만큼, 보람이 낮은 업무에서는 감정적 소진이 빠르게 올 수 있습니다.",
-    "균형형 탐색가":"상황에 맞춰 조절하는 힘이 있지만, 우선순위가 흐려지면 결정이 늦어질 수 있습니다."
-  };
-
-  add(100, typeBase[type] || typeBase["균형형 탐색가"]);
-
-  // 상호작용 리스크: 두 성향이 동시에 높을 때만 나타나는 주의점
-  if(v("independence") >= 70 && v("stability") >= 70) {
-    add(96, "자율성과 안정욕구가 함께 높아, 자유는 원하지만 방향이 자주 바뀌는 환경에서는 피로가 크게 쌓일 수 있습니다.");
-  }
-  if(v("precision") >= 70 && v("action") >= 70) {
-    add(95, "빠르게 움직이고 싶지만 완성도 기준도 높아, 속도와 품질 사이에서 스스로를 압박할 수 있습니다.");
-  }
-  if(v("empathy") >= 70 && v("directness") >= 70) {
-    add(94, "상대를 배려하면서도 핵심을 말하고 싶어 하기 때문에, 말하기 전 고민이 길어지거나 표현 강도가 흔들릴 수 있습니다.");
-  }
-  if(v("social") >= 70 && v("stressWithdraw") >= 70) {
-    add(93, "평소에는 사람과 잘 어울리지만 스트레스가 높아지면 갑자기 거리를 둘 수 있어, 주변이 혼란스럽게 느낄 수 있습니다.");
-  }
-  if(v("drive") >= 70 && v("recognition") >= 70) {
-    add(92, "성과와 인정 욕구가 함께 높아, 노력 대비 반응이 약하면 의욕 저하가 크게 올 수 있습니다.");
-  }
-  if(v("innovation") >= 70 && v("stability") >= 70) {
-    add(91, "바꾸고 싶은 마음과 안정적으로 굴러가길 바라는 마음이 공존해, 변화의 속도 조절이 중요합니다.");
-  }
-  if(v("meaning") >= 70 && v("action") >= 70) {
-    add(90, "의미가 보일 때 빠르게 몰입하지만, 의미가 약한 업무는 급격히 미루거나 에너지가 떨어질 수 있습니다.");
-  }
-  if(v("planning") >= 70 && v("innovation") >= 70) {
-    add(89, "새로운 구상을 체계화하려는 힘이 있지만, 계획이 완성될 때까지 실행을 늦출 수 있습니다.");
-  }
-  if(v("empathy") >= 70 && v("stressSensitivity") >= 70) {
-    add(88, "상대 감정과 압박 신호를 동시에 크게 받아들여, 갈등 상황에서 실제보다 더 많이 지칠 수 있습니다.");
-  }
-
-  // 단일 고득점 리스크
-  if(v("stressSensitivity") >= 70) add(84, "압박이 길어질수록 반응이 예민해질 수 있으니, 중요한 대화는 회복 시간을 둔 뒤 하는 편이 좋습니다.");
-  if(v("stressWithdraw") >= 70) add(83, "혼자 정리하는 시간이 필요하지만, 침묵이 길어지면 협업 상대는 단절로 받아들일 수 있습니다.");
-  if(v("recognition") >= 70) add(82, "피드백이 부족하면 실제 성과와 별개로 스스로의 가치를 낮게 평가할 수 있습니다.");
-  if(v("precision") >= 70) add(81, "기준이 높아 작은 오류에도 에너지를 많이 쓰기 쉬우니, 완성도와 투입 시간을 구분할 필요가 있습니다.");
-  if(v("directness") >= 70) add(80, "핵심을 빠르게 말하는 장점이 있지만, 상대에게는 결론만 강하게 전달될 수 있습니다.");
-  if(v("empathy") >= 70) add(79, "타인의 감정을 잘 읽는 만큼, 내 책임이 아닌 감정까지 해결하려 들 수 있습니다.");
-  if(v("planning") >= 70) add(78, "계획이 틀어질 때 스트레스가 커질 수 있어, 처음부터 예비안을 짧게라도 두는 것이 좋습니다.");
-  if(v("innovation") >= 70) add(77, "개선점을 빨리 발견하는 만큼, 현재 방식을 지키려는 사람과 마찰이 생길 수 있습니다.");
-  if(v("action") >= 70) add(76, "실행이 빠른 만큼, 문제 정의가 충분하지 않으면 나중에 되돌아가는 비용이 커질 수 있습니다.");
-
-  // 최저 점수 기반 보완점
-  if(lowest === "directness") add(65, "직접 표현 점수가 낮아, 불편함을 늦게 말하다가 나중에 한꺼번에 쌓일 수 있습니다.");
-  if(lowest === "planning") add(64, "계획성 점수가 낮아, 시작은 빠르지만 우선순위가 흔들릴 때 마감 압박이 커질 수 있습니다.");
-  if(lowest === "empathy") add(63, "공감 신호 점수가 낮아, 의도와 달리 상대가 차갑거나 단호하게 느낄 수 있습니다.");
-  if(lowest === "stability") add(62, "안정욕구가 낮아 변화에는 강하지만, 반복 관리나 장기 유지 업무를 가볍게 볼 수 있습니다.");
-  if(lowest === "social") add(61, "사교 에너지가 낮아, 필요한 네트워킹이나 가벼운 소통을 뒤로 미루기 쉽습니다.");
-  if(lowest === "action") add(60, "실행력 점수가 낮아, 생각은 충분하지만 시작 타이밍을 놓치기 쉽습니다.");
-  if(lowest === "recognition") add(59, "인정욕구가 낮아 보여도, 필요한 피드백까지 생략하면 성장 포인트를 놓칠 수 있습니다.");
-
-  const unique = [];
-  candidates
-    .sort((a,b)=>b.score-a.score)
-    .forEach(item => {
-      if(!unique.includes(item.text)) unique.push(item.text);
-    });
-
-  return unique.slice(0, 4);
-}
-function makeCompatibility(type){
-  const map = {
-    "조용한 전략가형": { best:["관계형 촉진자 · 감정 흐름과 협업 분위기를 부드럽게 연결해줌","추진형 리더 · 실행 속도와 방향성을 끌어올려줌"], difficult:["지나치게 즉흥적인 유형 · 계획과 집중 흐름이 자주 깨질 수 있음"] },
-    "관계형 촉진자": { best:["조용한 전략가형 · 안정적이고 깊이 있는 판단을 제공해줌","안정형 설계자 · 관계 속에서도 기준과 구조를 잡아줌"], difficult:["감정 표현이 매우 적은 유형 · 정서적 거리감으로 피로를 느낄 수 있음"] },
-    "추진형 리더": { best:["안정형 설계자 · 실행 과정의 리스크와 구조를 안정화해줌","관계형 촉진자 · 팀 분위기와 커뮤니케이션을 보완해줌"], difficult:["결정 속도가 매우 느린 유형 · 답답함과 충돌이 생길 수 있음"] },
-    "안정형 설계자": { best:["추진형 리더 · 실행 동력과 추진력을 제공해줌","조용한 전략가형 · 깊이 있는 분석과 집중 흐름이 잘 맞음"], difficult:["변동성과 즉흥성이 매우 강한 유형 · 안정감을 흔들 수 있음"] },
-    "창의적 개선가": { best:["안정형 설계자 · 아이디어를 현실적인 구조로 정리해줌","독립형 실행가 · 개선 아이디어를 빠르게 실험해줌"], difficult:["변화를 싫어하는 유형 · 개선 제안이 부담으로 느껴질 수 있음"] },
-    "섬세한 조율자": { best:["안정형 설계자 · 예측 가능한 기준으로 불안을 낮춰줌","관계형 촉진자 · 정서적 교류와 배려가 잘 맞음"], difficult:["강한 직설형 · 말투와 속도에서 압박을 느낄 수 있음"] },
-    "독립형 실행가": { best:["창의적 개선가 · 새로운 방향과 실행 실험이 잘 맞음","조용한 전략가형 · 실행 전 판단의 깊이를 보완해줌"], difficult:["통제 성향이 강한 유형 · 간섭과 승인 절차에서 충돌 가능"] },
-    "의미지향 서포터": { best:["관계형 촉진자 · 사람 중심의 가치관이 잘 맞음","섬세한 조율자 · 서로의 감정과 맥락을 잘 이해함"], difficult:["성과만 중시하는 유형 · 의미와 배려가 부족하다고 느낄 수 있음"] },
-    "균형형 탐색가": { best:["대부분의 유형과 무난하게 조화를 이루는 편"], difficult:["기준이 극단적으로 강한 유형 · 방향성 충돌이 생길 수 있음"] }
-  };
-  return map[type] || map["균형형 탐색가"];
-}
-function makeEnvironments(avg){
-  const good=[], tough=[];
-  if((avg.independence||0)>=70) good.push("자율성이 높은 업무");
-  if((avg.planning||0)>=70) good.push("계획과 우선순위가 명확한 환경");
-  if((avg.meaning||0)>=70) good.push("일의 의미와 영향이 보이는 프로젝트");
-  if((avg.social||0)>=70) good.push("협업과 커뮤니케이션이 많은 팀");
-  if((avg.stability||0)>=70) tough.push("잦은 즉흥 변경");
-  if((avg.precision||0)>=70) tough.push("기준 없이 대충 처리하는 문화");
-  if((avg.independence||0)>=70) tough.push("지나친 마이크로매니징");
-  if((avg.empathy||0)>=70) tough.push("감정 소모가 큰 관계 갈등");
-  return { good:good.length?good:["역할과 피드백이 적절히 주어지는 균형형 환경"], tough:tough.length?tough:["목표가 불명확하고 피드백이 거의 없는 환경"] };
-}
-
-function renderResult(){
-  const r = analyze();
-  $("resultType").textContent = r.type;
-  $("resultSubtitle").textContent = r.subtitle;
-  $("summary").textContent = r.summary;
-  $("scoreGrid").innerHTML = r.cards.map(([label,score]) => `<div class="card score-card"><div class="label">${label}</div><div class="num">${score}</div></div>`).join("");
-  const blocks = [
-    ["강점", r.strengths], ["주의할 점", r.cautions], ["잘 맞는 환경", r.environments.good],
-    ["피로한 환경", r.environments.tough], ["잘 맞는 유형", r.compatibility.best], ["충돌 가능 유형", r.compatibility.difficult]
-  ];
-  $("infoGrid").innerHTML = blocks.map(([title,items]) => `<div class="info"><h4>${title}</h4><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`).join("");
-  drawRadar(r.radar);
-}
-
-function drawRadar(data){
-  const canvas = $("radar"), ctx = canvas.getContext("2d");
-  const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, maxR = 150;
-  ctx.clearRect(0,0,w,h);
-  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  const n = data.length;
-  for(let ring=1; ring<=5; ring++){
-    const r = maxR * ring/5;
-    ctx.beginPath();
-    for(let i=0;i<n;i++){
-      const a = -Math.PI/2 + i * 2*Math.PI/n;
-      const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
-      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
-    ctx.closePath();
-    ctx.strokeStyle = "#e5e7eb"; ctx.stroke();
-  }
-  data.forEach(([trait],i)=>{
-    const a = -Math.PI/2 + i*2*Math.PI/n;
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*maxR, cy+Math.sin(a)*maxR);
-    ctx.strokeStyle="#eef2f7"; ctx.stroke();
-    ctx.fillStyle="#4b5563";
-    ctx.fillText(trait, cx+Math.cos(a)*(maxR+28), cy+Math.sin(a)*(maxR+28));
-  });
-  ctx.beginPath();
-  data.forEach(([,score],i)=>{
-    const a = -Math.PI/2 + i*2*Math.PI/n;
-    const r = maxR * score/100;
-    const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  });
-  ctx.closePath();
-  ctx.fillStyle = "rgba(124,58,237,.24)";
-  ctx.strokeStyle = "#7c3aed";
-  ctx.lineWidth = 3;
-  ctx.fill(); ctx.stroke();
-  data.forEach(([,score],i)=>{
-    const a = -Math.PI/2 + i*2*Math.PI/n;
-    const r = maxR * score/100;
-    const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
-    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
-    ctx.fillStyle="#7c3aed"; ctx.fill();
-  });
-}
 
-function restart(){
-  current = 0; answers = [];
-  show("home");
-}
-$("startBtn").onclick = () => { current=0; answers=[]; renderQuestion(); show("test"); };
-$("restartBtn").onclick = restart;
-$("homeBtn").onclick = restart;
-</script>
+    function getLevel(score) {
+      return levelData.find((item) => score >= item.min && score <= item.max) || levelData[0];
+    }
+
+    function getResult(answers) {
+      const total = Object.values(answers).reduce((sum, value) => sum + Number(value || 0), 0);
+      const uwai = Math.max(0, Math.min(100, Math.round(((total - 20) / 80) * 100)));
+      const areaScores = { control: 0, value: 0, risk: 0, inertia: 0 };
+
+      questions.forEach((q) => {
+        areaScores[q.key] += Number(answers[q.id] || 0);
+      });
+
+      const topArea = Object.entries(areaScores).sort((a, b) => b[1] - a[1])[0] || ["control", 0];
+      return { total, uwai, areaScores, topArea };
+    }
+
+    function iconClipboard() {
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <path d="M9 12h6"></path>
+          <path d="M9 16h6"></path>
+        </svg>`;
+    }
+
+    function iconCheck() {
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <path d="m9 11 3 3L22 4"></path>
+        </svg>`;
+    }
+
+    function renderIntro() {
+      app.innerHTML = `
+        <main class="screen">
+          <header class="header">
+            <div class="logo">UP-GLE</div>
+            <div class="pill">약 3분</div>
+          </header>
+
+          <section class="hero">
+            <div class="hero-icon-wrap">
+              <div class="hero-icon">${iconClipboard()}</div>
+            </div>
+            <div>
+              <h1 class="hero-title">나의 일하는 방식은<br />어떤 모습일까?</h1>
+              <p class="hero-desc">평소 업무 상황에서의 판단과 반응을 바탕으로<br />나에게 맞는 업무 스타일 리포트를 확인해보세요.</p>
+            </div>
+          </section>
+
+          <button class="primary-btn" id="startBtn" type="button">진단 시작하기 <span aria-hidden="true">→</span></button>
+        </main>
+      `;
+
+      document.getElementById("startBtn").addEventListener("click", () => {
+        state.started = true;
+        render();
+      });
+    }
+
+    function renderQuestion() {
+      const safeStep = Math.min(Math.max(state.step, 0), questions.length - 1);
+      const current = questions[safeStep];
+      const progress = Math.min(100, Math.round(((safeStep + 1) / questions.length) * 100));
+
+      if (!current) {
+        state.done = true;
+        render();
+        return;
+      }
+
+      const scores = [1, 2, 3, 4, 5].map((score) => {
+        const selected = state.answers[current.id] === score;
+        return `<button class="score-btn${selected ? " selected" : ""}" data-score="${score}" type="button" ${state.isAdvancing ? "disabled" : ""}>${score}</button>`;
+      }).join("");
+
+      app.innerHTML = `
+        <main class="screen">
+          <header class="progress-wrap">
+            <div class="header">
+              <div class="logo">UP-GLE</div>
+              <div class="question-count">Q ${String(safeStep + 1).padStart(2, "0")} / 20</div>
+            </div>
+            <div class="progress-bg"><div class="progress-fill" style="width:${progress}%"></div></div>
+          </header>
+
+          <section class="question-area">
+            <h1 class="question-title">“${escapeHtml(current.text)}”</h1>
+            <div class="score-grid">${scores}</div>
+            <div class="scale-labels">
+              <span>전혀 아니다</span>
+              <span>매우 그렇다</span>
+            </div>
+          </section>
+
+          <div class="hint-box">가장 가까운 번호를 선택하면 자동으로 다음 문항으로 이동합니다.</div>
+        </main>
+      `;
+
+      document.querySelectorAll(".score-btn").forEach((button) => {
+        button.addEventListener("click", () => selectAnswer(Number(button.dataset.score)));
+      });
+    }
+
+    function selectAnswer(score) {
+      if (state.isAdvancing) return;
+
+      const safeStep = Math.min(Math.max(state.step, 0), questions.length - 1);
+      const current = questions[safeStep];
+      if (!current) return;
+
+      state.answers[current.id] = score;
+      state.isAdvancing = true;
+      renderQuestion();
+
+      window.setTimeout(() => {
+        if (safeStep >= questions.length - 1) {
+          state.done = true;
+        } else {
+          state.step = Math.min(safeStep + 1, questions.length - 1);
+        }
+        state.isAdvancing = false;
+        render();
+      }, 160);
+    }
+
+    function renderGauge(value) {
+      const radius = 88;
+      const stroke = 18;
+      const normalizedRadius = radius - stroke / 2;
+      const circumference = normalizedRadius * 2 * Math.PI;
+      const strokeDashoffset = circumference - (value / 100) * circumference;
+
+      return `
+        <div class="gauge-wrap">
+          <svg width="176" height="176" viewBox="0 0 176 176" aria-hidden="true">
+            <circle class="gauge-track" fill="transparent" stroke-width="${stroke}" r="${normalizedRadius}" cx="${radius}" cy="${radius}"></circle>
+            <circle class="gauge-value" fill="transparent" stroke-width="${stroke}" r="${normalizedRadius}" cx="${radius}" cy="${radius}"
+              stroke-dasharray="${circumference} ${circumference}" stroke-dashoffset="${strokeDashoffset}"></circle>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-score">${value}</div>
+            <div class="gauge-label">UWAI</div>
+          </div>
+        </div>`;
+    }
+
+    function renderBar(label, value) {
+      const percent = Math.max(0, Math.min(100, Math.round(((value - 5) / 20) * 100)));
+      return `
+        <div>
+          <div class="bar-head">
+            <span>${escapeHtml(label)}</span>
+            <span class="bar-score">${value}/25</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${percent}%"></div></div>
+        </div>`;
+    }
+
+    function renderResult() {
+      const result = getResult(state.answers);
+      const level = getLevel(result.uwai);
+      const topAreaLabel = areaLabels[result.topArea[0]] || "주요 영역";
+      const bars = Object.entries(result.areaScores).map(([key, value]) => renderBar(areaLabels[key], value)).join("");
+      const missions = level.actions.map((action) => `<div class="mission-item">${iconCheck()}<span>${escapeHtml(action)}</span></div>`).join("");
+
+      app.innerHTML = `
+        <main class="result-screen">
+          <header class="header">
+            <div class="logo">UP-GLE</div>
+            <button class="ghost-btn" id="resetTopBtn" type="button">↻ 다시</button>
+          </header>
+
+          <section class="main-result-card">
+            <div class="level-label">${escapeHtml(level.level)}</div>
+            <h2 class="result-title">${escapeHtml(level.name)}</h2>
+            <p class="result-tone">${escapeHtml(level.tone)}</p>
+            ${renderGauge(result.uwai)}
+            <p class="result-desc">${escapeHtml(level.desc)}</p>
+          </section>
+
+          <section class="card">
+            <h3 class="card-title">세부 리포트</h3>
+            <div class="bar-list">${bars}</div>
+          </section>
+
+          <section class="card dark-card">
+            <div class="dark-label">주요 참고 영역</div>
+            <h3 class="dark-title">${escapeHtml(topAreaLabel)}</h3>
+            <p class="dark-desc">${escapeHtml(level.risk)}</p>
+          </section>
+
+          <section class="card">
+            <h3 class="card-title">오늘의 업무 다이어트 미션</h3>
+            <div class="mission-list">${missions}</div>
+          </section>
+
+          <div class="button-grid">
+            <button class="primary-btn" id="saveBtn" type="button">결과 저장</button>
+            <button class="secondary-btn" id="resetBottomBtn" type="button">다시 진단</button>
+          </div>
+        </main>
+      `;
+
+      document.getElementById("resetTopBtn").addEventListener("click", reset);
+      document.getElementById("resetBottomBtn").addEventListener("click", reset);
+      document.getElementById("saveBtn").addEventListener("click", saveResult);
+    }
+
+    function reset() {
+      state.started = false;
+      state.done = false;
+      state.step = 0;
+      state.answers = {};
+      state.isAdvancing = false;
+      render();
+    }
+
+    function saveResult() {
+      const result = getResult(state.answers);
+      const level = getLevel(result.uwai);
+      const rows = Object.entries(result.areaScores)
+        .map(([key, value]) => `${areaLabels[key]}: ${value}/25`)
+        .join("\n");
+      const text = [
+        "UP-GLE 업무 스타일 리포트",
+        "",
+        `결과: ${level.name} (${level.level})`,
+        `UWAI: ${result.uwai}`,
+        `설명: ${level.desc}`,
+        "",
+        "세부 리포트",
+        rows,
+        "",
+        "추천 미션",
+        ...level.actions.map((item) => `- ${item}`)
+      ].join("\n");
+
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "upgle_work_style_result.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function render() {
+      if (!state.started) {
+        renderIntro();
+      } else if (state.done) {
+        renderResult();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    render();
+  </script>
 </body>
 </html>
